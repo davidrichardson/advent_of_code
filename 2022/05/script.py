@@ -41,7 +41,7 @@ def move_9001(stacks,quant,src,targ):
     crates = stacks[src][quant*-1:]
     del stacks[src][quant*-1:]
     stacks[targ].extend(crates)
-    print(f"{crates} {stacks} {quant} {src} {targ}")
+
 
 (layout_input,moves_input) = sys.stdin.read().split("\n\n")
 
