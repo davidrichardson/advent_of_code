@@ -4,18 +4,14 @@ import collections
 def parse_layout(input:str):
     lines = input.splitlines()
 
-    stack_count = (len(lines[0])+1)//4
     stacks = []
-    for x in range(stack_count): stacks.append([])
+    for x in range((len(lines[0])+1)//4): stacks.append([])
 
     for l in lines:
         for idx, s in enumerate(stacks):
             crate = l[(idx * 4) + 1]
             if crate.isalpha(): 
-                s.append(crate)
-
-    for s in stacks:
-        s.reverse()
+                s.insert(0,crate)
 
     return stacks
 
@@ -26,20 +22,18 @@ def parse_move_line(ml:str):
 
 
 def read_top(stacks):
-    out = []
-    for s in stacks:
-        c = s[-1] if len(s) > 0 else " "
-        out.append(c)
-    return "".join(out)
+    return "".join( map(lambda s: s[-1], stacks) )
+
 
 def move_9000(stacks,quant,src,targ):
-    for x in range(quant):
-        crate = stacks[src].pop()
-        stacks[targ].append(crate)
+    crates = stacks[src][quant * -1:]
+    del stacks[src][quant * -1:]
+    stacks[targ].extend(reversed(crates))
+
 
 def move_9001(stacks,quant,src,targ):
-    crates = stacks[src][quant*-1:]
-    del stacks[src][quant*-1:]
+    crates = stacks[src][quant * -1:]
+    del stacks[src][quant * -1:]
     stacks[targ].extend(crates)
 
 
@@ -52,6 +46,3 @@ for ml in moves_input.splitlines():
     move_9001(stacks,q,s,t)
 
 print(read_top(stacks))
-
-
-
