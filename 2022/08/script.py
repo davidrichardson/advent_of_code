@@ -19,7 +19,7 @@ class Tree:
         return any(self.dirs_visible())
         
     def update_from_adjacent(self,at,dir):
-            self.max_height[dir] = at.max_for_dir(dir)
+        self.max_height[dir] = at.max_for_dir(dir)
 
 
     def __repr__(self):
