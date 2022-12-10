@@ -5,10 +5,10 @@ cycle = 1
 
 report = {}
 
-grid = [[" "] * 40 for i in range(7)]
+grid = [[" "] * 40 for i in range(6)]
 
 def show_grid():
-    for r in grid[0:6]:
+    for r in grid:
         print("".join(r))
 
 
