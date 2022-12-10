@@ -5,7 +5,7 @@ cycle = 1
 
 report = {}
 
-grid = [["."] * 40 for i in range(7)]
+grid = [[" "] * 40 for i in range(7)]
 
 def show_grid():
     for r in grid[0:6]:
@@ -13,16 +13,14 @@ def show_grid():
 
 
 def maybe_report(line):
-    #print(f"c:{cycle} x: {x} {line}")
     if cycle in [20, 60, 100, 140, 180, 220]:
         report[cycle] = x
-    
+
     sprite = [x-1,x,x+1]
     if (cycle - 1) % 40 in sprite:
         row = (cycle-1) // 40
         col = (cycle-1)% 40
-        grid[row][col] = '#'
-    #show_grid()
+        grid[row][col] = '▓'
 
 for line in sys.stdin.read().splitlines():
     cycle += 1
