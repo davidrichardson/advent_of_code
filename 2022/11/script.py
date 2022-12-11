@@ -1,6 +1,5 @@
 import sys
 from dataclasses import dataclass,field
-from typing import Callable
 
 part_1 = True
 logging = False
@@ -95,7 +94,9 @@ logging = False
 part_1 = False
 rounds = 10000
 reporter = rounds//100
+
 monkeys = parse()
+
 for m in monkeys: log(lambda: str(m))
 
 if (part_1):
