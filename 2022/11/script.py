@@ -1,5 +1,6 @@
 import sys
 from dataclasses import dataclass,field
+from typing import Callable
 
 part_1 = True
 logging = False
@@ -12,18 +13,18 @@ def log(txt_call):
 class Monkey:
     id: int = -1
     items: list[int] = field(default_factory=lambda: [])
-    op: str = '' # use in form new = old {op} op_val - op could be + - *
-    op_val: int = -1  # if None, use old
     test_divi: int = -1
     test_true_target: int = -1
     test_false_target: int = -1
     inspect_count: int = 0
 
+    opc: Callable[[int],int] = lambda x: x
+
     def __repr__(self) -> str:
         return "\n".join([
             f"Monkey {self.id}:",
             f"\tItems: {self.items}",
-            f"\tOperation: new = old {self.op} {self.op_val}",
+            f"\tOperation: {self.opc}",
             f"\tTest: divisible by {self.test_divi}",
             f"\t\tIf true: throw to monkey {self.test_true_target}",
             f"\t\tIf false: throw to monkey {self.test_false_target}",
@@ -48,15 +49,7 @@ class Monkey:
         monkeys[target].catch(bored_now)
 
     def _do_op(self,old):
-        a = old
-        b = old if self.op_val is None else self.op_val
-        n = None
-        match self.op:
-            case '+': n = a + b
-            case '-': n = a - b
-            case '*': n = a * b
-            case _: raise Exception(str(self))
-        return n
+        return self.opc(old)
 
     def _do_test(self,wl):
         return (wl % self.test_divi) == 0
@@ -79,8 +72,17 @@ def parse():
             m.items = list(map(int,line.removeprefix("  Starting items: ").split(", ")))
         elif line.startswith("  Operation"):
             (_,op,b) = line.removeprefix("  Operation: new = ").split(" ")
-            m.op = op
-            m.op_val = None if b == 'old' else int(b)
+            
+            if (b=='old' and op =='*'):
+                f = lambda x: x*x
+            else:
+                b = int(b)
+                match op:
+                    case '*': f = lambda x: x*b
+                    case '+': f = lambda x: x+b
+                    case '-': f = lambda x: x-b
+                    case _: raise Exception(line)
+            m.opc = f
         elif line.startswith("  Test"):
             m.test_divi = int(line.removeprefix("  Test: divisible by "))
         elif line.startswith("    If true"):
@@ -93,7 +95,6 @@ def parse():
 logging = False
 part_1 = False
 rounds = 10000
-reporter = rounds//100
 
 monkeys = parse()
 
@@ -108,8 +109,6 @@ else:
     bored_fn = lambda x: x % mod
 
 for round_idx in range(rounds):
-    if(round_idx+1)%reporter==0:
-        print(f"starting round {round_idx+1}")
     for m in monkeys:
         m.take_turn(monkeys,bored_fn)
 
