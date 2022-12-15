@@ -46,11 +46,13 @@ def draw_line(grid,line_instruction):
         lp_x = tp_x
         lp_y = tp_y
 
+
+def min_max(items):
+    return [min(items),max(items)]
+
 def bounds(grid):
-    xs = [x for x,_ in grid.keys()]
-    ys = [y for _,y in grid.keys()]
-    xlim = [min(xs),max(xs)]
-    ylim = [min(ys),max(ys)]
+    xlim = min_max([x for x,_ in grid.keys()])
+    ylim = min_max([y for _,y in grid.keys()])
     return (xlim,ylim)
 
 def print_grid(grid):
@@ -97,7 +99,7 @@ def phase_two(grid):
     
     (x_lim,y_lim) = bounds(grid)
     # I could try to model the infinite floor properly, or I could just hack this in:
-    draw_line(grid,[ (x_lim[0]-200,y_lim[1]+2),(x_lim[1]+200,y_lim[1]+2) ])
+    draw_line(grid,[ (x_lim[0]-y_lim[1],y_lim[1]+2),(x_lim[1]+y_lim[1],y_lim[1]+2) ])
 
     while sand_src not in grid:
         (x,y) = sand_src
@@ -127,7 +129,7 @@ def phase_two(grid):
 step = phase_two(grid)
 
 sand_source(grid)
-print_grid(grid)
+#print_grid(grid)
 print(step)
 
 
