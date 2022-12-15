@@ -1,7 +1,6 @@
 import re
 from dataclasses import dataclass
-from collections import Counter
-from functools import reduce
+
 def read_input():
     return [list(map(int,re.findall(r"-?\d+",l))) for l in open(0).read().splitlines()]
         
@@ -33,40 +32,35 @@ def relevant_sensors(y,sensors):
     return [s for s in sensors if s.senses_row(y)]    
 
 def merge_ranges(ranges):
-    if (len(ranges)<2): return ranges
-
     accumulator = [ranges[0]]
     #relies on sorted ranges
-    def reducer(rg):
-        head = accumulator[-1]
+    def reducer(acc,rg):
+        head = acc[-1]
         if rg[0]<=head[1]+1:
             head[1] = max(head[1],rg[1])
         else:
-            accumulator.append(rg)
+            acc.append(rg)
 
-    for r in ranges[1:]: reducer(r)
+    for r in ranges[1:]: reducer(accumulator,r)
 
     return accumulator
 
 
-def phase_1():
-    sensors = []
-
-    sensors = [to_sensor(sx,sy,bx,by) for sx,sy,bx,by in read_input()]
- 
+def phase_1(input):
+    sensors = [to_sensor(sx,sy,bx,by) for sx,sy,bx,by in input]
+    out = {}
     for y in [10,2000000]:
         rs = relevant_sensors(y,sensors)
         
         ranges = sorted([s.sense_xrange_at_y(y) for s in rs],key=lambda r:r[0])    
         ranges = merge_ranges(ranges)
-        c = sum(map(lambda r: r[1]-r[0],ranges))
-        print(f"{y} {c}")
+        c = sum([r[1]-r[0] for r in ranges])
+        out[y] = c
+    return out
 
 
-def phase_2():
-    sensors = []
-
-    sensors = [to_sensor(sx,sy,bx,by) for sx,sy,bx,by in read_input()]
+def phase_2(input):
+    sensors = [to_sensor(sx,sy,bx,by) for sx,sy,bx,by in input]
     
     limit = 4000000 # should complete within this, but may as well use it
 
@@ -79,9 +73,9 @@ def phase_2():
         if len(deduped_ranges)>1:
             #report the gap
             x = deduped_ranges[0][1]+1
-            print((x*4000000)+y)
-            return (x,y)
+            return [(x,y), (x*4000000)+y]
         
-
-print(phase_2())
+input = read_input()
+print(phase_1(input))
+print(phase_2(input))
 

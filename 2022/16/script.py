@@ -1,0 +1,1 @@
+for l in open(0).read().splitlines()
