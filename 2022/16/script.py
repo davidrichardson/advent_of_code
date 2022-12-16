@@ -45,19 +45,19 @@ def make_distances(valves_by_id):
 
     return dists
 
-
 @cache
 def maxflow(loc,valves_opened = frozenset(),time_left=30,elephant_available=False):
     mf = 0
     
     new_locs = [new_loc for new_loc in valves_by_id.values() if new_loc.id not in valves_opened and distances[(loc.id,new_loc.id)]<time_left]
+
     for new_loc in new_locs:
         cost = 1 + distances[(loc.id,new_loc.id)]
         flow_increase = new_loc.flow * (time_left - cost)
         new_opened = valves_opened.union( [new_loc.id])
         mf = max(mf, flow_increase + maxflow(new_loc,new_opened,time_left-cost,elephant_available))
     
-    if elephant_available:
+    if elephant_available and len(new_locs)==0:
         mf = max(mf, maxflow(ROOT,valves_opened,26,False))
 
     return mf
