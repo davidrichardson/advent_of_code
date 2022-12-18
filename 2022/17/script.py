@@ -43,15 +43,33 @@ def fall(coords,grid):
         falling = False
     return (coords,falling)
 
+def trim(grid,maxh):
+    for x,y in [(x,y) for x,y in grid.keys() if y < maxh-100]:
+        del grid[(x,y)]
 
 grid = defaultdict(lambda:'.')
 
 max_height = 0
 wind_step = 0
 
-for rock_step in range(2022):
+cycle_tracker=defaultdict(lambda: list())
+
+cyclecheck = [None]*(len(winds)*2)
+
+rock_step = 0
+
+limit = 1000000000000
+
+divisor = None
+target_step = None
+diff = None
+initial_height = None
+
+for rock_step in range(limit):
     falling = True
     coords = [ (x+2,y+max_height+3) for x,y in rock_for_step(rock_step)]
+    ws_at_start = wind_step
+    h_at_start = max_height
 
     while falling:
         coords = blow(coords,grid,wind_step)
@@ -61,12 +79,36 @@ for rock_step in range(2022):
     for x,y in coords:
         grid[(x,y)] = '#'
         max_height = max(y+1,max_height)
-    
-    
 
-    
+    if (rock_step == 2021):
+        print(f"1: {max_height}")
 
+    trim(grid,max_height)
+    
+    if rock_step == target_step:
+        m = max_height - (initial_height + ((rock_step // divisor)-1)*diff)
+        h = initial_height-1 + ((limit//divisor)-1) * diff + m
+        print(f"2: {h}")
+        break
+
+    if divisor is None:
+
+        if (rock_step>0):
+            cycle_tracker[rock_step] = [(max_height,max_height)]
+        
+        for i in [i for i in cycle_tracker if rock_step % i == 0]:
+            tracker = cycle_tracker[i]
+            diff = max_height - tracker[-1][0]
+            tracker.append( (max_height, diff))
+            
+            if len(tracker) > 3 and len(set([d for _,d in tracker[-4:]]))==1:
+                divisor = i
+                initial_height = tracker[0][0]
+                target_step = rock_step + (limit % divisor)
+                break
+            elif len(tracker) > 3 and tracker[-1][1] != tracker[-2][1]:
+                del cycle_tracker[i]
+    
 
 if max_height < 100:
     print_grid(grid,max_height+1)
-print(max_height)
