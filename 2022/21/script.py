@@ -1,30 +1,30 @@
 from dataclasses import dataclass
-from operator import add, sub, mul, truediv
 HUMAN = 'humn'
 
 @dataclass
 class StaticMon():
-    id: str
     val: int
     def getVal(self): return self.val
     def rep(self): return str(self.val)
-    def rev(self,c):  
-        self.val = c
-        return c
+    def rev(self,c): return c
     def is_const(self): return isinstance(self.val, int)
-        
 
 @dataclass
 class CalcMon():
-    id: str
     a: any
     b: any
-    func: any
-    revfunc: any
     op: str
 
+    def _calc(self,a,b):
+        match self.op:
+            case '+': x=a+b
+            case '-': x=a-b
+            case '*': x=a*b
+            case '/': x=a/b
+        return x
+
     def getVal(self):
-        return self.func(self.a.getVal(),self.b.getVal())
+        return self._calc(self.a.getVal(),self.b.getVal())
     
     def rep(self):
         if (self.is_const()):
@@ -36,17 +36,32 @@ class CalcMon():
         return self.a.is_const() and self.b.is_const()
 
     def rev(self,c):
-        (m,n) = (self.a,self.b)
-
-
-        if n.is_const():
-            (m,n) = (self.b,self.a)
-
-        o = self.revfunc(c,m.getVal())
-        
-        x = n.rev(o)
-        
-        return x 
+        if self.b.is_const():
+            b = self.b.getVal()
+            match self.op:
+                case "+": # a+b=c
+                    a = c-b  
+                case "-": # a-b=c
+                    a = c+b
+                case "*": # a*b=c
+                    a = c/b
+                case "/": # a/b=c
+                    a = c*b   
+            return self.a.rev(a)
+        if self.a.is_const():
+            a = self.a.getVal()
+            match self.op:
+                case "+": # a+b=c
+                    b = c - a
+                case "-": # a-b=c
+                    b = -1*(c - a)
+                case "*": # a*b=c
+                    b = c / a
+                case "/": # a/b=c
+                    b =  a / c         
+            return self.b.rev(b)	
+            
+			
         
 
 def monkeys():
@@ -57,40 +72,23 @@ def monkeys():
         toks = l.split(' ')
         id = toks[0].removesuffix(":")
         if len(toks)==2:
-            lookup[id] = StaticMon(id,int(toks[1]))
+            lookup[id] = StaticMon(int(toks[1]))
         else:
-            a = toks[1]
-            b = toks[3]
-            
-            match toks[2]:
-                case '+':
-                    f = add
-                    r = sub 
-                case '-':
-                    f = sub
-                    r = add
-                case '*': 
-                    f = mul
-                    r = truediv
-                case '/':
-                    f = truediv
-                    r = mul
-            lookup[id] = CalcMon(id,a,b,f,r,toks[2])
+            lookup[id] = CalcMon(toks[1],toks[3],toks[2])
             tofix.append(lookup[id])
 
     for m in tofix:
         m.a = lookup[m.a]
         m.b = lookup[m.b]
-    return lookup
 
+    return lookup
 
 lookup =monkeys()
 root = lookup['root']
 print(f"part 1: {root.getVal()}")
 
 human = lookup['humn']
-human.val = HUMAN
+human.val = 'x'
 x = root.a.rev(root.b.getVal())
+human.val= x
 print(f"part 2: {human.val}")
-print(root.a.getVal())
-print(root.b.getVal())
