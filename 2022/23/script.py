@@ -27,28 +27,28 @@ def read_input():
     return grid
 
 def nface(pos,clear_spots):
-    (x,y),(nw,n,ne,w,e,sw,s,se) = pos,clear_spots
+    (x,y),(nw,n,ne,_,_,_,_,_) = pos,clear_spots
     if nw and n and ne:
         return True,(x,y-1)
     else:
         return False,(x,y)
 
 def wface(pos,clear_spots):
-    (x,y),(nw,n,ne,w,e,sw,s,se) = pos,clear_spots
+    (x,y),(nw,_,_,w,_,sw,_,_) = pos,clear_spots
     if nw and w and sw:
         return True,(x-1,y)
     else:
         return False,(x,y)
 
 def eface(pos,clear_spots):
-    (x,y),(nw,n,ne,w,e,sw,s,se) = pos,clear_spots
+    (x,y),(_,_,ne,_,e,_,_,se) = pos,clear_spots
     if ne and e and se:
         return True,(x+1,y)
     else:
         return False,(x,y)
 
 def sface(pos,clear_spots):
-    (x,y),(nw,n,ne,w,e,sw,s,se) = pos,clear_spots
+    (x,y),(_,_,_,_,_,sw,s,se) = pos,clear_spots
     if sw and s and se:
         return True,(x,y+1)
     else:
@@ -66,7 +66,6 @@ def round(grid,t):
     proposal = defaultdict(lambda: [])
     start_idx = t%4
     no_move_planned = set()
-    static_count = 0
 
     for (x,y) in grid.keys():
         around = [  (x-1,y-1),(x,y-1),(x+1,y-1),
