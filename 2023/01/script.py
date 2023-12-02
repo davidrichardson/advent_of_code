@@ -31,7 +31,7 @@ def part_2(line: str):
     return combine(f,l)
         
     
-def combine(f,l):
+def combine(f:int,l:int):
     return int(f"{f}{l}")
 
 total_1 = 0
