@@ -1,6 +1,6 @@
 import sys
 from collections import defaultdict
-
+from itertools import chain
 N = 0,-1#top of map, low y
 S = 0,1 #bottom of map, high y
 E = 1,0 #right of map, high x
@@ -36,9 +36,7 @@ def next_step(layout,steps):
     next_pos = next( (p for p in possible_pos if p != steps[-2] ) )
     steps.append(next_pos)
 
-def part_one():
-    layout,start = parse()
-
+def part_one(layout,start):
     possible_start_steps = []
 
     #start pipe type is unclear
@@ -59,7 +57,20 @@ def part_one():
         next_step(layout,rev_steps)
     return steps,fwd_steps,rev_steps
 
-steps,fwd_steps,rev_steps = part_one()
+layout,start = parse()
 
-
+steps,fwd_steps,rev_steps = part_one(layout,start)
 print("part 1",steps)
+
+max_x,max_y = 0,0
+new_layout = defaultdict(lambda: '.')
+for p in chain(fwd_steps,rev_steps):
+    new_layout[p] = layout[p]
+    max_x = max(max_x,p[0])
+    max_y = max(max_y,p[1])
+
+simple_layout = []
+for y in range(0,max_y+1):
+    simple_layout.append( [new_layout[(x,y)] for x in range(0,max_x+1)] )
+
+for l in simple_layout: print(''.join(l))
