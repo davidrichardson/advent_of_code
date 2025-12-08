@@ -1,6 +1,6 @@
 import sys
 from itertools import combinations
-from math import sqrt
+from math import sqrt, dist
 from operator import mul
 from functools import reduce
 from typing import TypeAlias
@@ -16,41 +16,14 @@ def parse_input() -> list[JBox]:
         jboxes.append( (int(x),int(y),int(z)) )
     return jboxes
 
-def distance(jbox1: JBox, jbox2: JBox) -> Distance:
-    return (sqrt(sum(abs(a - b)**2 for a, b in zip(jbox1, jbox2))), jbox1, jbox2)
-
 def circuits_to_connect(jboxes: list[JBox]) -> int:
     if len(jboxes) < 1000:
         return 10
     else:
         return 1000
 
-def part_a(jboxes: list[JBox],distances: list[Distance]) -> int:
-    jbox_to_circuit: dict[JBox,Circuit] = {}
-    
-    for jbox in jboxes:
-        c: Circuit= set()
-        c.add(jbox)
-        jbox_to_circuit[jbox] = { jbox:c }
-    
-    for dist,jbox1,jbox2 in distances[:circuits_to_connect(jboxes)]:
-        c1 = jbox_to_circuit[jbox1] 
-        c2 = jbox_to_circuit[jbox2]
 
-        if c1 is not c2:
-            for b in c2:
-                jbox_to_circuit[b] = c1
-            c1.update(c2)
-    
-    circuits = set()
-    for c in jbox_to_circuit.values():
-        circuits.add( frozenset(c) )
-
-    circuits = sorted(circuits,key=lambda a: len(a),reverse=True)
-
-    return reduce(mul, (len(c) for c in circuits[:3]), 1)
-
-def part_b(jboxes: list[JBox],distances: list[Distance]) -> int:
+def answer_problems(jboxes: list[JBox], distances: list[Distance]) -> tuple:
     jbox_to_circuit: dict[JBox,Circuit] = {}
     circuits: set[Circuit]= set()
 
@@ -61,9 +34,12 @@ def part_b(jboxes: list[JBox],distances: list[Distance]) -> int:
         jbox_to_circuit[jbox] = c
         circuits.add(c)    
 
-    while len(circuits) > 1:
+    distances_to_use_for_a = circuits_to_connect(jboxes)
+    a,b = None,None
+
+    while len(circuits) > 1 and distances:
         (_,jbox1,jbox2) = distances.pop()
-        
+
         c1 = jbox_to_circuit[jbox1] 
         c2 = jbox_to_circuit[jbox2]
 
@@ -75,12 +51,22 @@ def part_b(jboxes: list[JBox],distances: list[Distance]) -> int:
             circuits.remove(c1) 
             circuits.remove(c2)
             circuits.add(c3)
+
+        distances_to_use_for_a -= 1
+        if not distances_to_use_for_a:
+            sorted_circuits = sorted(circuits,key=lambda a: len(a),reverse=True)
+            a = reduce(mul, (len(c) for c in sorted_circuits[:3]), 1)
     
-    return jbox1[0] * jbox2[0] 
+    b = jbox1[0] * jbox2[0] 
+
+    return a,b
+
 
 jboxes: list[JBox] = parse_input()
-distances = sorted([distance(jbox1, jbox2) for jbox1, jbox2 in combinations(jboxes, 2)])
-rev_distances = list(reversed(distances))
+distances: list[Distance] = sorted([(dist(jbox1, jbox2),jbox1,jbox2) for jbox1, jbox2 in combinations(jboxes, 2)],reverse=True)
 
-print('a)',part_a(jboxes,distances))
-print('b)',part_b(jboxes,rev_distances))
+a,b = answer_problems(jboxes, distances)
+
+print('a)',a)
+print('b)',b)
+
