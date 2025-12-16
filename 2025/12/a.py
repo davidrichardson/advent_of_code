@@ -48,14 +48,32 @@ def parse_input():
     return shapes,regions
 
 shapes,regions = parse_input()
-for s in shapes:
-    print(s)
+
+impossible = 0
+trivial = 0
+maybe = 0
 
 for r in regions:
-    print(r)
 
     total_req = sum(m * shapes[i].filled_count() for i,m in enumerate(r.present_req))
-    print(total_req,r.area())
+
+    total_niners = sum(r.present_req)
+    x9 = r.x_len // 3
+    y9 = r.y_len // 3
+    niner_space = x9 * y9
+
+    if total_req > r.area():
+        impossible += 1
+    elif niner_space >= total_niners:
+        trivial += 1
+    else:
+        maybe += 1
+
+if maybe == 0:
+    print("a)",trivial)
+else:
+    print(f"a is quite difficult, there are {trivial} with trivial solutions, {maybe} that would require more work")
+        
             
 
 
